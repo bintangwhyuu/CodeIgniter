@@ -1,0 +1,39 @@
+name: CI CodeIgniter
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, intl, pdo, mysqlnd
+          tools: composer
+
+      - name: Install dependencies
+        run: |
+          if [ -f composer.json ]; then
+            composer install --no-interaction --prefer-dist
+          fi
+
+      - name: Check PHP version
+        run: php -v
+
+      - name: Lint PHP (cek error syntax)
+        run: find . -name "*.php" -exec php -l {} \;
+
+      # OPTIONAL (kalau lu punya PHPUnit)
+      - name: Run PHPUnit (optional)
+        run: |
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit || true
+          fi
